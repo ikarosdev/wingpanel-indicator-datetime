@@ -31,7 +31,7 @@ public class DateTime.Widgets.GridDay : Gtk.EventBox {
 
     private static Gtk.CssProvider provider;
 
-    private Gee.ArrayList<string> event_dots;
+    private Gee.HashMap<string, Gtk.Widget> event_dots;
     private Gtk.Grid event_grid;
     private Gtk.Label label;
     private bool valid_grab = false;

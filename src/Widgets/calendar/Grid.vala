@@ -26,7 +26,6 @@ namespace DateTime.Widgets {
  */
     public class Grid : Gtk.Grid {
         public Util.DateRange grid_range { get; private set; }
-        private static Widgets.CalendarModel model;
 
         /*
          * Event emitted when the day is double clicked or the ENTER key is pressed.
@@ -47,7 +46,6 @@ namespace DateTime.Widgets {
         }
 
         construct {
-            model = Widgets.CalendarModel.get_default ();
             header_labels = new Gtk.Label[7];
             for (int c = 0; c < 7; c++) {
                 header_labels[c] = new Gtk.Label (null);
@@ -298,5 +296,10 @@ namespace DateTime.Widgets {
                 day.show_all ();
             }
         }
+
+        private uint day_hash (GLib.DateTime date) {
+            return date.get_year () * 10000 + date.get_month () * 100 + date.get_day_of_month ();
+        }
+
     }
 }
