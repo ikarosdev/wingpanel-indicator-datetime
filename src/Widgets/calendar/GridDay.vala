@@ -1,6 +1,5 @@
-// -*- Mode: vala; indent-tabs-mode: nil; tab-width: 4 -*-
 /*-
- * Copyright (c) 2011–2018 elementary, Inc. (https://elementary.io)
+ * Copyright 2011–2020 elementary, Inc. (https://elementary.io)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,8 +31,7 @@ public class DateTime.Widgets.GridDay : Gtk.EventBox {
 
     private static Gtk.CssProvider provider;
 
-    private Gee.ArrayList<string> event_dots;
-    private Gee.HashMap<string, Gtk.Widget> dot_map;
+    private Gee.HashMap<string, Gtk.Widget> event_dots;
     private Gtk.Grid event_grid;
     private Gtk.Label label;
     private bool valid_grab = false;
@@ -43,7 +41,6 @@ public class DateTime.Widgets.GridDay : Gtk.EventBox {
     }
 
     static construct {
-
         provider = new Gtk.CssProvider ();
         provider.load_from_resource ("/io/elementary/desktop/wingpanel/datetime/GridDay.css");
     }
@@ -83,50 +80,38 @@ public class DateTime.Widgets.GridDay : Gtk.EventBox {
             label.label = date.get_day_of_month ().to_string ();
         });
 
-        event_dots = new Gee.ArrayList<string> ();
-        dot_map = new Gee.HashMap<string, Gtk.Widget> ();
+        event_dots = new Gee.HashMap<string, Gtk.Widget> ();
     }
 
-
-    public void add_dots (E.Source source, ICal.Component ical) {
-        var event_uid = ical.get_uid ();
-        if (event_dots.contains (event_uid)) {
-            return;
-        }
-
-        event_dots.add (event_uid);
-        if (event_dots.size > 3) {
-            return;
-        }
-
-        var event_dot = new Gtk.Image ();
-        event_dot.gicon = new ThemedIcon ("pager-checked-symbolic");
-        event_dot.pixel_size = 6;
-
-        unowned Gtk.StyleContext style_context = event_dot.get_style_context ();
-        style_context.add_class (Granite.STYLE_CLASS_ACCENT);
-        style_context.add_provider (provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
-
-        var source_calendar = (E.SourceCalendar?) source.get_extension (E.SOURCE_EXTENSION_CALENDAR);
-        Util.set_event_calendar_color (source_calendar, event_dot);
-
-        event_grid.add (event_dot);
-        event_dot.show ();
-    }
-
-    public void remove_dots (string event_uid) {
-        if (!event_dots.contains (event_uid)) {
-            return;
-        }
-
-        event_dots.remove (event_uid);
+    public void add_event_dot (E.Source source, ICal.Component ical) {
         if (event_dots.size >= 3) {
             return;
         }
 
-        var dot = dot_map[event_uid];
+        var event_uid = ical.get_uid ();
+        if (!event_dots.has_key (event_uid)) {
+            var event_dot = new Gtk.Image ();
+            event_dot.gicon = new ThemedIcon ("pager-checked-symbolic");
+            event_dot.pixel_size = 6;
+
+            unowned Gtk.StyleContext style_context = event_dot.get_style_context ();
+            style_context.add_class (Granite.STYLE_CLASS_ACCENT);
+            style_context.add_provider (provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+            var source_calendar = (E.SourceCalendar?) source.get_extension (E.SOURCE_EXTENSION_CALENDAR);
+            Util.set_event_calendar_color (source_calendar, event_dot);
+
+            event_dots[event_uid] = event_dot;
+
+            event_grid.add (event_dot);
+        }
+    }
+
+    public void remove_event_dot (string event_uid) {
+        var dot = event_dots[event_uid];
         if (dot != null) {
             dot.destroy ();
+            event_dots.unset (event_uid);
         }
     }
 
